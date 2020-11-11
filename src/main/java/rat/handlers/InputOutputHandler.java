@@ -83,8 +83,7 @@ public class InputOutputHandler {
     }
 
     public Object readNextMessage() throws IOException, ClassNotFoundException {
-        Object messageObject = inputStream.readObject();
-            listener.receivedMessage(messageObject);
+        return inputStream.readObject();
     }
 
     public boolean isConnected() {

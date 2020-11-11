@@ -1,5 +1,6 @@
 package main.java.rat.server.connectedClients;
 
+import main.java.Main;
 import main.java.rat.handlers.InputOutputHandler;
 import main.java.rat.listeners.InputOutputListener;
 import main.java.rat.models.ComputerInfo;
@@ -33,9 +34,26 @@ public class RATConnectedClient implements InputOutputListener {
     @Override
     public void receivedMessage(Object message) {
         if(initStage) {
-
-
+            if(message.equals(Main.SECRET)) {
+                performInitStage();
+            } else {
+                server.incorrectSecret(this);
+            }
         }
+    }
 
+    private void performInitStage() {
+        try {
+            String version = (String) inputOutput.readNextMessage();
+            this.clientComputerInfo = (ComputerInfo) inputOutput.readNextMessage();
+            
+            this.initStage = false;
+            server.successInit(this);
+        } catch (Exception e) {
+            server.unknownInitError(this);
+        }
+    }
+
+    public String getFormattedComputerInfo() {
     }
 }

@@ -1,16 +1,34 @@
-import RAT.client.Client;
-import RAT.server.Server;
+package main.java;
+
+import main.java.rat.client.RATClient;
+import main.java.rat.server.RATServer;
 
 import java.io.IOException;
 
 public class Main {
-    public static void Main(String[] args) {
-        Server server = new Server();
+
+    public static String VERSION = "0.1.1";
+    public static String SECRET = "2c9af0a9b4ac2c9d6ba971ae8f596fe0ea46fed7";
+
+    public static void main(String[] args) {
+
+        RATServer server = new RATServer(5560);
         try {
-            server.startServer(1991);
+            server.startServer();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Client client = new Client();
+
+        RATClient client = new RATClient("localhost", 5560);
+        try {
+            client.connectToServer();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        while(true) {
+
+        }
+
     }
 }

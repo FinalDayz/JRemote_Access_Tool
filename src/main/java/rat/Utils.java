@@ -40,6 +40,6 @@ public class Utils {
             bytes /= 1024;
             ci.next();
         }
-        return String.format(Locale.getDefault(), "%.1f %cB", bytes / 1024.0, ci.current());
+        return String.format("%.1f %cB", bytes / 1024.0, ci.current());
     }
 }

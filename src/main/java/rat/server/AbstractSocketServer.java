@@ -10,11 +10,11 @@ import java.net.Socket;
 
 abstract class AbstractSocketServer {
 
-    private final int port;
+    protected final int port;
     private ServerSocket socket;
     private ClientHandler clientHandler;
 
-    private boolean started = false;
+    protected boolean started = false;
 
     public AbstractSocketServer(int port) {
         this.port = port;
@@ -24,12 +24,12 @@ abstract class AbstractSocketServer {
         socket = new ServerSocket(port);
         started = true;
         waitForConnections();
+        serverStarted();
     }
 
-    private void waitForConnections() {
-        System.out.println("Started server at port "+port
-                +" and waiting for conenctions...");
+    abstract void serverStarted();
 
+    private void waitForConnections() {
         new Thread(() -> {
             while (started) {
                 try {

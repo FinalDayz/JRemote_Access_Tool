@@ -8,6 +8,8 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class ComputerInfo implements Serializable {
 
@@ -16,6 +18,7 @@ public class ComputerInfo implements Serializable {
     private String os;
     private String computerUsername;
     private String country;
+    private String[] CPUNames;
     private int CPUCores;
     private String[] GPUs;
     private String[] monitors;
@@ -28,10 +31,11 @@ public class ComputerInfo implements Serializable {
         info.setOs(readOsName());
         info.setComputerUsername(readUserName());
         info.setCountry(readCountry());
+        info.setGPUNames(readCPUNames());
         info.setCPUCores(readCores());
         info.setGPUs(readGPUInfo());
         info.setMonitors(readMonitorInfo());
-        info.setMonitors(readStorages());
+        info.setStorages(readStorages());
 
         return info;
     }
@@ -48,7 +52,7 @@ public class ComputerInfo implements Serializable {
             }
 
             return sb.toString();
-        }catch (IOException e) {
+        } catch (IOException e) {
             return null;
         }
     }
@@ -76,55 +80,55 @@ public class ComputerInfo implements Serializable {
                         .split("\r\n");
 
                 if (cmdReturn.length >= 2) {
-                    String[] GPUs = new String[cmdReturn.length - 1];
-                    for(int i = 1; i < cmdReturn.length; i++) {
-                        GPUs[i-1] = cmdReturn[i];
+                    ArrayList<String> GPUs = new ArrayList<String>();
+                    for (int i = 1; i < cmdReturn.length; i++) {
+                        if (!(cmdReturn[i] == null || cmdReturn[i].isBlank()))
+                            GPUs.add(cmdReturn[i]);
                     }
-                    return GPUs;
+                    return GPUs.toArray(new String[]{});
                 }
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
         return null;
     }
 
 
-    private static String readCPUInfo() throws IOException {
-        StringBuilder CPU = new StringBuilder("unknown CPU");
+    private static String[] readCPUNames() {
+        try {
+            if (isWindows()) {
+                //get CPU info
+                String[] cmdReturn = Utils.executeCMDCommand("wmic cpu get name", true)
+                        .split("\r\n");
 
-        if(isWindows()) {
-
-            //get CPU info
-            CPU = new StringBuilder("Error getting CPU info, ('wmic cpu get name' didn't return anything?)");
-            String[] cmdReturn = Utils.executeCMDCommand("wmic cpu get name", true)
-                    .split("\r\n");
-
-            if(cmdReturn.length >= 1) {
-                CPU = new StringBuilder();
-                for(int i = 1; i < cmdReturn.length; i++) {
-                    if(!(cmdReturn[i].equals("") || cmdReturn[i].equals(" ")))
-                        CPU.append(cmdReturn[i]).append(", ");
+                if (cmdReturn.length >= 2) {
+                    ArrayList<String> GPUs = new ArrayList<String>();
+                    for (int i = 1; i < cmdReturn.length; i++) {
+                        if (!(cmdReturn[i] == null || cmdReturn[i].isBlank()))
+                            GPUs.add(cmdReturn[i]);
+                    }
+                    return GPUs.toArray(new String[]{});
                 }
-                CPU = new StringBuilder(CPU.substring(0, CPU.length() - 2));
-                return CPU.toString();
             }
-
+        } catch (Exception ignored) {
         }
-
         return null;
     }
 
     private static String[] readMonitorInfo() {
-        if(!Utils.isHeadless()) {
+        if (!Utils.isHeadless()) {
             GraphicsDevice mainMonitor = readMainMonitor();
             GraphicsDevice[] monitors = readMonitors();
             String[] monitorsInfo = new String[monitors.length];
 
-            for(int i = 0; i < monitors.length; i++) {
+            for (int i = 0; i < monitors.length; i++) {
                 DisplayMode displayMode = monitors[i].getDisplayMode();
-                String info = displayMode.getWidth() + "x" + displayMode.getHeight() + "@" + displayMode.getRefreshRate()+"Hz";
+                String info = displayMode.getWidth() + "x" + displayMode.getHeight() + " @" + displayMode.getRefreshRate() + "Hz";
 
-                if(monitors.equals(mainMonitor)) {
+                if (monitors[i].equals(mainMonitor)) {
                     monitorsInfo[i] = "(main) ";
+                } else {
+                    monitorsInfo[i] = "";
                 }
                 monitorsInfo[i] += info;
 
@@ -165,10 +169,10 @@ public class ComputerInfo implements Serializable {
         FileSystemView fsv = FileSystemView.getFileSystemView();
         String[] storageInfo = new String[roots.length];
 
-        for(int i = 0; i < roots.length; i++) {
+        for (int i = 0; i < roots.length; i++) {
             String name = fsv.getSystemDisplayName(roots[i]);
             long space = roots[i].getTotalSpace();
-            storageInfo[i] = name+", " + Utils.readableByteSize(space);
+            storageInfo[i] = name + ", " + Utils.readableByteSize(space);
         }
         return storageInfo;
     }
@@ -213,6 +217,14 @@ public class ComputerInfo implements Serializable {
         this.country = country;
     }
 
+    public String[] getCPUNames() {
+        return CPUNames;
+    }
+
+    public void setGPUNames(String[] cpuNames) {
+        this.CPUNames = cpuNames;
+    }
+
     public int getCPUCores() {
         return CPUCores;
     }
@@ -244,4 +256,18 @@ public class ComputerInfo implements Serializable {
     public void setStorages(String[] storages) {
         this.storages = storages;
     }
+
+    public ArrayList<String> getAsPrependList(String[] arr, String prependText) {
+        ArrayList<String> newArr = new ArrayList<>();
+        if (arr == null) {
+            newArr.add(prependText + null);
+        } else {
+            for (String s : arr) {
+                newArr.add(prependText + s);
+            }
+        }
+
+        return newArr;
+    }
+
 }

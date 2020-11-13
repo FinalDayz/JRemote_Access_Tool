@@ -1,12 +1,12 @@
 package main.java.rat.client;
 
 import main.java.Main;
+import main.java.rat.Environment;
 import main.java.rat.handlers.InputOutputHandler;
 import main.java.rat.models.ComputerInfo;
 
-import java.io.IOException;
 
-public class RATClient extends AbstractSocketClient {
+public class RATClient extends AbstractSocketClient implements Environment {
 
     public RATClient(String ip, int port) {
         super(ip, port);
@@ -32,5 +32,15 @@ public class RATClient extends AbstractSocketClient {
     @Override
     public void receivedMessage(Object message) {
 
+    }
+
+    @Override
+    public boolean isServer() {
+        return false;
+    }
+
+    @Override
+    public boolean isClient() {
+        return true;
     }
 }

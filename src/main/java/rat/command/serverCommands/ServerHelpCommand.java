@@ -35,17 +35,18 @@ public class ServerHelpCommand extends ServerCommand {
             String specificCommand = (String) this.getParameter("commandName").getValue();
             for(Command command : environment.getCommands()) {
                 if(command.getMainCommandName().equalsIgnoreCase(specificCommand)) {
-                    System.out.println("Info for command '"+specificCommand+"':");
-                    System.out.println(command.getExtendedHelpText());
-                    System.out.println("\t"+String.join("\n\t",command.getParametersInfo()));
+                    logger.log("Info for command '"+specificCommand+"':");
+                    logger.log(command.getExtendedHelpText());
+                    logger.log("\t"+String.join("\n\t",command.getParametersInfo()));
                     return true;
                 }
             }
+            this.error = "Command '"+specificCommand+"' doesn't exist";
         } else {
-            System.out.println("All commands:");
+            logger.log("All commands:");
             for(Command command : environment.getCommands()) {
-                System.out.println(command.getMainCommandName()+" - " + command.getHelpText());
-                System.out.println("\tParameters: "+
+                logger.log(command.getMainCommandName()+" - " + command.getHelpText());
+                logger.log("\tParameters: "+
                         String.join(", ", command.getParametersInfo(false))
                 );
             }

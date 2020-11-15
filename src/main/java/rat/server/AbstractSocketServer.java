@@ -1,7 +1,5 @@
 package main.java.rat.server;
 
-import main.java.rat.server.connectedClients.RATConnectedClient;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;

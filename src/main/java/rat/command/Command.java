@@ -1,10 +1,12 @@
 package main.java.rat.command;
 
 import main.java.rat.Environment;
+import main.java.rat.logger.StringLogger;
 
 public interface Command {
 
     void setEnv(Environment e);
+    void setLogger(StringLogger logger);
 
     String getMainCommandName();
     String getHelpText();

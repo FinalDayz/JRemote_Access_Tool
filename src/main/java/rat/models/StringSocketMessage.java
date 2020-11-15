@@ -3,6 +3,7 @@ package main.java.rat.models;
 public class StringSocketMessage implements SocketMessage<String> {
 
     private boolean isCommand = false;
+    private boolean isInfo = false;
     private String content;
 
     @Override
@@ -23,6 +24,17 @@ public class StringSocketMessage implements SocketMessage<String> {
     @Override
     public void setIsCommand() {
         this.isCommand = true;
+    }
+
+
+    @Override
+    public boolean isInfo() {
+        return isInfo;
+    }
+
+    @Override
+    public void setIsInfo() {
+        this.isInfo = true;
     }
 
 //    @Override

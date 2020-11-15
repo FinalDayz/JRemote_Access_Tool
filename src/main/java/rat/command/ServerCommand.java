@@ -1,9 +1,11 @@
 package main.java.rat.command;
 
 import main.java.rat.Environment;
+import main.java.rat.command.serverCommands.ServerClientsCommand;
 import main.java.rat.command.serverCommands.ServerConnectCommand;
 import main.java.rat.command.serverCommands.ServerGetInfoCommand;
 import main.java.rat.command.serverCommands.ServerHelpCommand;
+import main.java.rat.logger.StringLogger;
 import main.java.rat.server.RATServer;
 
 public abstract class ServerCommand extends AbstractCommand {
@@ -19,7 +21,8 @@ public abstract class ServerCommand extends AbstractCommand {
         return new Class[]{
                 ServerGetInfoCommand.class,
                 ServerConnectCommand.class,
-                ServerHelpCommand.class
+                ServerHelpCommand.class,
+                ServerClientsCommand.class,
         };
     }
 

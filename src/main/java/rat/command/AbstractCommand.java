@@ -1,13 +1,24 @@
 package main.java.rat.command;
 
+import main.java.rat.logger.StringLogger;
+
 import java.util.ArrayList;
 
 public abstract class AbstractCommand implements Command {
 
+    protected StringLogger logger;
     protected String error;
     public ArrayList<AbstractCommandParameter> parameters = new ArrayList<>();
 
+    public void setLogger(StringLogger logger) {
+        this.logger = logger;
+    }
+
     public boolean parseArguments(Iterable<String> args) {
+        for (AbstractCommandParameter parameter : this.parameters) {
+            parameter.clear();
+        }
+
         int index = 0;
         for (String argument : args) {
             if (index < parameters.size()) {

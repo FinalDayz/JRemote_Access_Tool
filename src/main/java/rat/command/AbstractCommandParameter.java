@@ -55,4 +55,8 @@ public abstract class AbstractCommandParameter<T> {
     public T getDefaultValue() {
         return this.defaultValue;
     }
+
+    public void clear() {
+        this.value = null;
+    }
 }

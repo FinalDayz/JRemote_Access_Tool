@@ -32,8 +32,8 @@ public class ServerGetInfoCommand extends ServerCommand {
             }
         }
 
-        System.out.println(
-                "Computer info from client("+target.getId()+")\n"+
+        logger.log(
+                "Computer info from "+target.getFullName()+"\n"+
                 target.getFormattedComputerInfo()
         );
 

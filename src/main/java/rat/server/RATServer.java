@@ -5,6 +5,7 @@ import main.java.rat.command.ClientCommand;
 import main.java.rat.command.Command;
 import main.java.rat.command.ServerCommand;
 import main.java.rat.handlers.InputOutputHandler;
+import main.java.rat.logger.StringLogger;
 import main.java.rat.server.connectedClients.RATConnectedClient;
 
 import java.io.ObjectInputStream;
@@ -23,9 +24,8 @@ public class RATServer extends AbstractSocketServer implements Environment {
 
     public RATServer(int port) {
         super(port);
-
-        commandHandler = new CommandHandler(this, ServerCommand.getAllServerCommands());
-        clientCommandsHandler = new CommandHandler(this, ClientCommand.getAllClientCommands());
+        commandHandler = new CommandHandler(System.out::println, this, ServerCommand.getAllServerCommands());
+        clientCommandsHandler = new CommandHandler(System.out::println, ClientCommand.getAllClientCommands());
     }
 
     @Override
@@ -54,10 +54,6 @@ public class RATServer extends AbstractSocketServer implements Environment {
             }
         }).start();
 
-    }
-
-    public void handleClientMessage(RATConnectedClient client, Object message) {
-        System.out.println("[RATServer] received message from client: " + message.toString());
     }
 
     @Override
@@ -89,8 +85,8 @@ public class RATServer extends AbstractSocketServer implements Environment {
     }
 
     public void successInit(RATConnectedClient ratConnectedClient, String version) {
-        System.out.println("Client("+ratConnectedClient.getId()+") connected, computer info:");
-        System.out.println(ratConnectedClient.getFormattedComputerInfo());
+        System.out.println(ratConnectedClient.getFullName()+" connected");
+        //System.out.println(ratConnectedClient.getFormattedComputerInfo());
     }
 
     public RATConnectedClient getClientFromId(int id) {

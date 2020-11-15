@@ -47,6 +47,7 @@ public class InputOutputHandler {
     }
 
     public void sendMessage(Object message) {
+        System.out.println("SEND MESSAGE " + message);
         try {
             outputStream.writeObject(message);
             outputStream.flush();

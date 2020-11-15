@@ -2,18 +2,27 @@ package main.java.rat.server;
 
 import main.java.rat.Environment;
 import main.java.rat.command.Command;
+import main.java.rat.logger.StringLogger;
 
 import java.util.ArrayList;
 
 public class CommandHandler {
 
     private ArrayList<Command> commands = new ArrayList<Command>();
+    private StringLogger logger;
 
-    public CommandHandler(Environment environment, Class<? extends Command>... commands) {
+    public CommandHandler(StringLogger logger, Class<? extends Command>... commands) {
+        this(logger, null, commands);
+    }
+
+    public CommandHandler(StringLogger logger, Environment environment, Class<? extends Command>... commands) {
+        this.logger = logger;
         for (Class<? extends Command> commandClass : commands) {
             try {
                 Command newCommandObj = commandClass.getDeclaredConstructor().newInstance();
-                newCommandObj.setEnv(environment);
+                newCommandObj.setLogger(logger);
+                if(environment != null)
+                    newCommandObj.setEnv(environment);
                 this.commands.add(newCommandObj);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -59,20 +68,20 @@ public class CommandHandler {
                     if (!commandObj.parseArguments(arguments) || !commandObj.executeCommand())
                         throw new Exception("Invalid command handling");
                 } catch (Exception e) {
-
+                    e.printStackTrace();
                     if (commandObj.getError() != null) {
-                        System.out.println("Error while processing command:");
-                        System.out.println(commandObj.getError());
+                        logger.log("Error while processing command:");
+                        logger.log(commandObj.getError());
                     } else {
-                        System.out.println("Invalid usage:");
-                        System.out.println(commandObj.getExtendedHelpText());
+                        logger.log("Unknown Error while processing command:");
+                        logger.log(commandObj.getExtendedHelpText());
                     }
                 }
                 return;
             }
         }
 
-        System.out.println("Command '" + completeCommand + "' not found, please use help to get help");
+        logger.log("Command '" + completeCommand + "' not found, please use help to get help");
     }
 
     private ArrayList<String> parseArguments(String argumentStr) {

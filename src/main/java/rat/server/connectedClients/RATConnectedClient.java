@@ -25,9 +25,6 @@ public class RATConnectedClient implements InputOutputListener {
         this.server = ratServer;
         this.inputOutput = inputOutputHandler;
         inputOutput.setListener(this);
-
-
-        inputOutput.sendMessage("Hello world from server");
     }
 
     @Override
@@ -43,6 +40,8 @@ public class RATConnectedClient implements InputOutputListener {
             } else {
                 server.incorrectSecret(this);
             }
+        } else {
+
         }
     }
 
@@ -120,5 +119,15 @@ public class RATConnectedClient implements InputOutputListener {
 
     public int getId() {
         return id;
+    }
+
+    public String getFullName() {
+        return "client ("+getId()+") '"+getName()+"'";
+    }
+
+    public String getName() {
+        if(this.clientComputerInfo == null)
+            return null;
+        return this.clientComputerInfo.getComputerUsername();
     }
 }

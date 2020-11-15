@@ -19,7 +19,7 @@ public class ServerConnectCommand extends ServerCommand {
 
     @Override
     public String getHelpText() {
-        return "Make the specified the primary client to execute commands on";
+        return "Make the specified client the primary client to execute commands on";
     }
 
     @Override
@@ -39,6 +39,8 @@ public class ServerConnectCommand extends ServerCommand {
 
         environment.setConnectedClient(client);
 
-        return false;
+        logger.log("Connected to "+client.getFullName());
+
+        return true;
     }
 }

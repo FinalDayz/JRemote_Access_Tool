@@ -5,7 +5,10 @@ import main.java.rat.command.IntegerCommandParameter;
 import main.java.rat.command.StringCommandParameter;
 
 import java.awt.*;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 public class ClientOpenURLCommand extends ClientCommand {
     public ClientOpenURLCommand() {
@@ -38,14 +41,32 @@ public class ClientOpenURLCommand extends ClientCommand {
     @Override
     public boolean executeCommand() {
 
-        String URL = (String) getParameter("URL").getValue();
+        String givenURL = (String) getParameter("URL").getValue();
         int count = (int) getParameter("count").getValue();
         int delay = (int) getParameter("delay").getValue();
 
+        if(!isValidURI(givenURL)) {
+            error = "Invalid URL given";
+            return false;
+        }
+
+        if(!isValidURL(givenURL)) {
+           if(isValidURL("http://"+givenURL)) {
+               givenURL = "http://"+givenURL;
+           } else if(isValidURL("http://www."+givenURL)) {
+               givenURL = "http://www"+givenURL;
+           } else if(isValidURL("www."+givenURL)) {
+               givenURL = "www."+givenURL;
+           } else {
+               error = "Invalid URL given";
+               return false;
+           }
+        }
+
         try {
+            logger.log("Opening '"+givenURL+"' "+count+" time(s)");
             for(int i = 0; i < count; i++) {
-                logger.log("Opening '"+URL+"' "+count+" time(s)");
-                Desktop.getDesktop().browse(new URI(URL));
+                Desktop.getDesktop().browse(new URI(givenURL));
                 try {
                     Thread.sleep(delay);
                 } catch (InterruptedException e) {
@@ -59,5 +80,23 @@ public class ClientOpenURLCommand extends ClientCommand {
             this.error = "Java.awt.Desktop is not supported on this client";
         }
         return false;
+    }
+
+    private boolean isValidURI(String url) {
+        try {
+            (new URI(url)).parseServerAuthority();
+            return true;
+        } catch (URISyntaxException e) {
+            return false;
+        }
+    }
+
+    private boolean isValidURL(String url) {
+        try {
+            new URL(url);
+            return true;
+        } catch (MalformedURLException e) {
+            return false;
+        }
     }
 }

@@ -28,7 +28,7 @@ public abstract class AbstractCommand implements Command {
         }
         for (AbstractCommandParameter parameter : this.parameters) {
             if (parameter.isRequired() && parameter.emptyValue()) {
-                this.error = parameter.getName() + " is empty, but is required";
+                this.error = "parameter '"+parameter.getName() + "' is empty, but it is required";
                 return false;
             }
         }

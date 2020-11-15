@@ -1,6 +1,7 @@
 package main.java.rat.handlers;
 
 import main.java.rat.listeners.InputOutputListener;
+import main.java.rat.models.ClientStateSocketMessage;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -50,6 +51,7 @@ public class InputOutputHandler {
         try {
             outputStream.writeObject(message);
             outputStream.flush();
+            outputStream.reset();
         } catch (IOException e) {
             e.printStackTrace();
             this.connected = false;

@@ -2,7 +2,7 @@ package main.java.rat.server;
 
 import main.java.rat.Environment;
 import main.java.rat.command.Command;
-import main.java.rat.command.InteractableCommand;
+import main.java.rat.command.SessionCommand;
 import main.java.rat.logger.StringLogger;
 
 import java.util.ArrayList;
@@ -60,22 +60,22 @@ public class CommandHandler {
         return getInSessionCommand() != null;
     }
 
-    private InteractableCommand getInSessionCommand() {
+    private SessionCommand getInSessionCommand() {
         for (Command commandObj : commands) {
-            if(commandObj instanceof InteractableCommand && ((InteractableCommand) commandObj).isInSession())
-                return (InteractableCommand) commandObj;
+            if(commandObj instanceof SessionCommand && ((SessionCommand) commandObj).isInSession())
+                return (SessionCommand) commandObj;
         }
         return null;
     }
 
     public void handleCommand(String completeCommand) {
         if(isInSession()) {
-            InteractableCommand session = getInSessionCommand();
+            SessionCommand session = getInSessionCommand();
             if(session.getExitString().equalsIgnoreCase(completeCommand)) {
                 session.exit();
                 return;
             }
-            session.execute(completeCommand);
+            session.receivedInput(completeCommand);
             return;
         }
 

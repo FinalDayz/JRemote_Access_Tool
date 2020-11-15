@@ -56,7 +56,7 @@ public abstract class AbstractCommand implements Command {
     public String[] getParametersInfo(boolean withDescription) {
 
         if (parameters.size() == 0) {
-            return new String[]{"Command required no parameters"};
+            return new String[]{"Command requires no parameters"};
         } else {
             ArrayList<String> parameterInfo = new ArrayList<>();
             for (AbstractCommandParameter parameter : this.parameters) {

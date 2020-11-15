@@ -2,21 +2,15 @@ package main.java.rat.models;
 
 import java.io.Serializable;
 
-public interface SocketMessage<T> extends Serializable {
+public abstract class SocketMessage<T> implements Serializable {
 
-    void setContent(T content);
-    T getContent();
+    private T content;
 
-    boolean isCommand();
-    void setIsCommand();
-
-    boolean isInfo();
-    void setIsInfo();
-
-//    boolean isFromServer();
-//    boolean setFromServer();
-//
-//    boolean isFromClient();
-//    boolean setFromClient();
+    public void setContent(T content) {
+        this.content = content;
+    }
+    public T getContent() {
+        return this.content;
+    }
 
 }

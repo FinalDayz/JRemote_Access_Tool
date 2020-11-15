@@ -1,9 +1,9 @@
 package main.java.rat.command;
 
-public interface InteractableCommand {
+public interface SessionCommand {
 
     String getExitString();
-    void execute(String command);
+    void receivedInput(String command);
     boolean isInSession();
 
     void exit();

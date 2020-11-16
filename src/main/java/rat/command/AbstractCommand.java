@@ -14,6 +14,10 @@ public abstract class AbstractCommand implements Command {
         this.logger = logger;
     }
 
+    public StringLogger getLogger() {
+        return this.logger;
+    }
+
     public boolean parseArguments(Iterable<String> args) {
         for (AbstractCommandParameter parameter : this.parameters) {
             parameter.clear();
